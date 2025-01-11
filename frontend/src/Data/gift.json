@@ -1,0 +1,12 @@
+[
+  { "id": 1, "name": "Rose", "value": 1, "imageUrl": "/images/gift/rose.png" },
+  { "id": 2, "name": "Crown", "value": 5, "imageUrl": "/images/gift/crown.png" },
+  { "id": 3, "name": "Love", "value": 10, "imageUrl": "/images/gift/love.png" },
+  { "id": 4, "name": "Star", "value": 20, "imageUrl": "/images/gift/star.png" },
+  { "id": 5, "name": "Diamond", "value": 30, "imageUrl": "/images/gift/diamond.png" },
+  { "id": 6, "name": "Cake", "value": 40, "imageUrl": "/images/gift/cake.png" },
+  { "id": 7, "name": "Gift Box", "value": 50, "imageUrl": "/images/gift/gift.png" },
+  { "id": 8, "name": "Balloon", "value": 60, "imageUrl": "/images/gift/ballon.png" },
+  { "id": 9, "name": "Trophy", "value": 80, "imageUrl": "/images/gift/trophy.png" },
+  { "id": 10, "name": "Medal", "value": 100, "imageUrl": "/images/gift/medal.png" }
+]
