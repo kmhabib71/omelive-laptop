@@ -7,7 +7,7 @@ const socketSetup = require("./socket");
 const { Translate } = require("@google-cloud/translate").v2;
 const cookieParser = require("cookie-parser");
 const crypto = require("crypto");
-
+const { getToken, initializePayment } = require("./services/paymentService"); // Import payment functions
 const app = express();
 app.use(cookieParser());
 
@@ -39,35 +39,52 @@ app.post("/translate", async (req, res) => {
   }
 });
 
-// Payment system (Nestpay) route for generating hash
-app.post("/api/generate-hash", (req, res) => {
-  const { amount, email, country } = req.body;
+// Payment Initialization Endpoint
+app.post("/api/payments/initialize", async (req, res) => {
+  try {
+    const paymentData = req.body; // { product, referenceCode, amount, successUrl, failureUrl, ... }
 
-  // Define the required parameters for the hash
-  const params = {
-    clientId: "700321123123", // Example Client ID from Nestpay
-    orderId: Date.now().toString(),
-    amount: amount,
-    currency: "949", // Currency code (for TL, it's 949)
-    okUrl: "https://yourwebsite.com/success", // Update with your success URL
-    failUrl: "https://yourwebsite.com/fail", // Update with your failure URL
-    rnd: Math.random().toString(),
-    storeKey: "TEST1234", // Store Key from Nestpay
-  };
+    // Call the initializePayment function
+    const paymentPageUrl = await initializePayment(paymentData);
 
-  // Create the hash for the payment
-  const hashString = `${params.clientId}|${params.orderId}|${params.amount}|${params.currency}|${params.okUrl}|${params.failUrl}|${params.rnd}|${params.storeKey}`;
-  const hash = crypto.createHash("sha512").update(hashString).digest("base64");
-  console.log("hash is: ", hash);
-  // Return the necessary data to the frontend
-  res.json({
-    hash,
-    orderId: params.orderId,
-    rnd: params.rnd,
-    okUrl: params.okUrl,
-    failUrl: params.failUrl,
-  });
+    // Return the payment URL to the frontend
+    res.json({ paymentPageUrl });
+  } catch (error) {
+    console.error("Error initializing payment:", error.message);
+    res.status(500).json({ error: "Failed to initialize payment" });
+  }
 });
+
+// Payment Notification Endpoint (Webhook)
+app.post("/api/notifications", (req, res) => {
+  try {
+    const notification = req.body;
+
+    // Log notification for debugging
+    console.log("Received payment notification:", notification);
+
+    // Extract reference code and status
+    const { referenceCode, status } = notification.transaction;
+
+    // Handle status updates (e.g., SUCCESS, FAILED, CREATED)
+    if (status === "SUCCESS") {
+      console.log(`Payment for ${referenceCode} succeeded.`);
+      // Update your database to mark the payment as successful
+    } else if (status === "FAILED") {
+      console.log(`Payment for ${referenceCode} failed.`);
+      // Update your database to mark the payment as failed
+    } else {
+      console.log(`Payment for ${referenceCode} is in status: ${status}`);
+    }
+
+    // Respond to VizyonPay with 200 OK
+    res.status(200).send("Notification received");
+  } catch (error) {
+    console.error("Error handling payment notification:", error);
+    res.status(500).send("Error processing notification");
+  }
+});
+
 
 
 // Routes

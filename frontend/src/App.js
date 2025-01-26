@@ -15,6 +15,8 @@ import PaymentPage from "./pages/Home/PaymentPage";
 import About from "./pages/Home/About";
 import PrivacyPolicy from "./pages/Home/PrivacyPolicy";
 import DistanceSalesAgreement from "./pages/Home/DistanceSalesAgreement";
+import PaymentSuccess from "./pages/Home/PaymentSuccess";
+import PaymentFailure from "./pages/Home/PaymentFailure";
 function App() {
   return (
     <AuthProvider>
@@ -28,7 +30,8 @@ function App() {
           <Route path="/deposit" element={<DepositPage />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/about" element={<About />} />
-          <Route path="/privacypolicy" element={<PrivacyPolicy />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failure" element={<PaymentFailure />} />
           <Route
             path="/distanceSalesAgreement"
             element={<DistanceSalesAgreement />}

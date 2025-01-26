@@ -16,7 +16,7 @@ const PaymentPage = () => {
     country: "",
   });
   const [errors, setErrors] = useState({});
-  const [depositAmount, setDepositAmount] = useState("");
+  const [depositAmount, setDepositAmount] = useState("60");
   const [userLanguage, setUserLanguage] = useState("en");
 
   const handleInputChange = (e) => {
@@ -87,92 +87,36 @@ const PaymentPage = () => {
     email: "km.habibs@gmail.com",
     country: "Bangladesh",
   };
-  const handlePlaceOrders = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/generate-hash", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(paymentDatas),
-      });
-
-      if (!response.ok) {
-        // Handle non-200 responses
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      // Check if the response is JSON
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.indexOf("application/json") !== -1) {
-        const data = await response.json();
-        console.log("response is: ", data);
-      } else {
-        console.error("Response is not in JSON format");
-      }
-    } catch (err) {
-      console.log("error is: ", err);
-    }
-  };
-  handlePlaceOrders();
-
+  useEffect(() => {
+    console.log("authUser id: ", authUser.id);
+  }, [authUser]);
   const handlePlaceOrder = async () => {
-    if (!validate()) {
-      toast.error("Please correct the errors before submitting.");
-      return;
-    }
-
     const paymentData = {
+      product: "Sample Product",
+      referenceCode: `order-${Date.now()}`, // Unique reference
+      referenceUserId: authUser.id, // Your logged-in user ID
       amount: depositAmount,
-      email: cardDetails.email,
-      country: cardDetails.country,
+      successUrl: "/payment-success",
+      failureUrl: "/payment-failure",
     };
 
     try {
-      const response = await fetch("/api/generate-hash", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(paymentData),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/payments/initialize",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(paymentData),
+        }
+      );
 
-      const data = await response.json();
-      console.log("data is: ", data);
-      debugger;
+      const { paymentPageUrl } = await response.json();
 
-      const form = document.createElement("form");
-      form.method = "POST";
-      //   form.action = "https://istest.asseco-see.com.tr/fim/est3Dgate";
-      form.action = "https://istest.asseco-see.com.tr/fim/est3Dgate";
-
-      const fields = {
-        clientId: "700321123123",
-        oid: data.orderId,
-        amount: depositAmount,
-        currency: "949",
-        okUrl: data.okUrl,
-        failUrl: data.failUrl,
-        rnd: data.rnd,
-        hash: data.hash,
-        storetype: "3d_pay_hosting",
-        lang: userLanguage,
-      };
-
-      for (const key in fields) {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = fields[key];
-        form.appendChild(input);
-      }
-
-      // Append form to the body and submit
-      document.body.appendChild(form);
-      form.submit();
+      // Redirect to the payment page
+      window.location.href = paymentPageUrl;
     } catch (error) {
-      console.error("Error during payment processing:", error);
-      toast.error("Payment failed. Please try again.");
+      console.error("Error initializing payment:", error);
+      toast.error("Failed to initiate payment.");
     }
   };
 
@@ -206,7 +150,8 @@ const PaymentPage = () => {
               onClick={() => handlePaymentMethodChange("visa")}
               className={`p-4 mx-2 border rounded ${
                 paymentMethod === "visa" ? "border-blue-500" : "border-gray-300"
-              }`}>
+              }`}
+            >
               <img src="/images/visa.png" alt="Visa" className="h-8" />
             </button>
             <button
@@ -215,7 +160,8 @@ const PaymentPage = () => {
                 paymentMethod === "paypal"
                   ? "border-blue-500"
                   : "border-gray-300"
-              }`}>
+              }`}
+            >
               <img
                 src="/images/mastercard.png"
                 alt="mastercard"
@@ -318,7 +264,8 @@ const PaymentPage = () => {
           {/* Place Order Button */}
           <button
             onClick={handlePlaceOrder}
-            className="bg-green-500 text-white py-3 px-6 rounded w-full font-bold">
+            className="bg-green-500 text-white py-3 px-6 rounded w-full font-bold"
+          >
             Place Order
           </button>
 

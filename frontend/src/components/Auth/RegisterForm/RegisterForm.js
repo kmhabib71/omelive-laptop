@@ -9,11 +9,20 @@ function RegisterForm({
   setShowPassword,
   onSubmit,
   onSignInClick, // Add this prop
+  onClose, // Add onClose prop
 }) {
   return (
     <form
       onSubmit={onSubmit}
-      className="w-full max-w-sm bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      className="w-full max-w-sm bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 relative">
+          {/* Close button */}
+      <button
+        type="button"
+        onClick={onClose} // Close the modal on click
+        className="absolute top-2 right-4 text-gray-400 hover:text-gray-600 text-2xl"
+      >
+        &times;
+      </button>
       <div className="flex justify-center items-center">
         <img src="./svg/Fulltalk.svg" alt="Logo" />
       </div>
@@ -59,7 +68,7 @@ function RegisterForm({
       <button
         type="submit"
         className="bg-blue-400 text-white font-bold py-2 px-4 rounded focus:outline-none mt-4 w-full">
-        Sign Up
+        Sign Upp
       </button>
       <p className="text-sm mt-4 mb-4">
         Have an account?
